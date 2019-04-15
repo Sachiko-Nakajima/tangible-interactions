@@ -1,0 +1,191 @@
+#include <Keyboard.h>
+#include <Mouse.h>
+
+char prevprevByte = 0;
+char prevByte = 0;
+char currentByte = 0;
+char xCord = 0;         
+char yCord = 0;         
+char initialxCord = 0;         
+char initialyCord = 0;         
+signed char xMove = 0;
+signed char yMove = 0;
+char vol;
+char light;
+int responseDelay = 2;        // response delay of the mouse, in ms
+boolean initialxState = true;
+boolean initialyState = true;
+boolean lightupState = false;
+boolean lightdownState = false;
+boolean volupState = false;
+boolean voldownState = false;
+int tones[] = {261, 277, 294, 311, 330, 349, 370, 392, 415, 440, 464, 495, 522,554,588,622,660,698,740,784,830,880,928,990};
+//            mid C  C#   D    D#   E    F    F#   G    G#   A  B♭  B 
+unsigned long time = 0;
+
+void setup() {
+  Serial.begin(9600);
+  Serial1.begin(31250);
+  Keyboard.begin();
+  Mouse.begin();  
+}
+
+void loop() {
+if (Serial1.available()>0) {
+//  time = millis();
+//  if(millis()-time<5){
+      char currentByte = Serial1.read();
+      if(prevByte == 144 && currentByte==4 && lightdownState==0){
+        Keyboard.press(207); 
+        lightdownState =1;
+      }
+      if(prevByte == 144 && currentByte==4 && lightdownState==1){
+        Keyboard.release(207); 
+        lightdownState =0;
+      }
+
+      if(prevByte == 144 && currentByte==5 && lightupState==0){
+        Keyboard.press(208); 
+        lightupState =1;
+      }
+      if(prevByte == 144 && currentByte==5 && lightupState==1){
+        Keyboard.release(208); 
+        lightupState =0;
+      }
+
+
+  for(int t=24;t<47;t++){
+      if(prevByte == 144 && currentByte==t){
+        Keyboard.write(41+t); 
+      }
+    }
+    for(int t=48;t<71;t++){
+      if(prevByte == 144 && currentByte==t){
+        Keyboard.write(49+t); 
+//        if(millis()-time<4){
+//            tone(8,tones[t-24]);
+//         }
+//        if(millis()-time>4){
+//            noTone(8); 
+//         }
+       }
+    }
+
+    for(int t=78;t<93;t++){
+      if(prevByte == 144 && currentByte==t){
+        Keyboard.write(t-45); 
+      }
+    }
+    for(int t=96;t<101;t++){
+      if(prevByte == 144 && currentByte==t){
+        Keyboard.write(t-38); 
+      }
+    }
+    for(int t=101;t<107;t++){
+      if(prevByte == 144 && currentByte==t){
+        Keyboard.write(t-10); 
+      }
+    }
+    for(int t=107;t<111;t++){
+      if(prevByte == 144 && currentByte==t){
+        Keyboard.write(t+16); 
+      }
+    }
+    for(int t=111;t<121;t++){
+      if(prevByte == 144 && currentByte==t){
+        Keyboard.write(t-63); 
+      }
+    }
+
+      if(prevByte == 144 && currentByte==47){
+        Keyboard.write(8); 
+      }
+
+      if(prevByte == 144 && currentByte==71){
+        Keyboard.write(32); 
+      }
+
+      if(prevByte == 144 && currentByte==93){
+        Keyboard.write(63); 
+      }
+      if(prevByte == 144 && currentByte==94){
+        Keyboard.write(64); 
+      }
+      if(prevByte == 144 && currentByte==95){
+        Keyboard.write(10); 
+      }
+
+      if(prevByte == 144 && currentByte==72){
+        Keyboard.write(88); 
+      }
+      
+      if(prevByte == 144 && currentByte==73){
+        Keyboard.write(120); 
+      }
+ 
+      if(prevByte == 144 && currentByte==74){
+        Keyboard.write(89); 
+      }
+      if(prevByte == 144 && currentByte==75){
+        Keyboard.write(121); 
+      }    
+      if(prevByte == 144 && currentByte==76){
+        Keyboard.write(90); 
+      }    
+      if(prevByte == 144 && currentByte==77){
+        Keyboard.write(122); 
+      }    
+
+      if(prevByte == 144 && currentByte==0){
+        Keyboard.write(216); 
+      }    
+      if(prevByte == 144 && currentByte==1){
+        Keyboard.write(217); 
+      }    
+      if(prevByte == 144 && currentByte==2){
+        Keyboard.write(215); 
+      }    
+      if(prevByte == 144 && currentByte==3){
+        Keyboard.write(218); 
+      }    
+      if(prevByte == 144 && currentByte==4){
+        Keyboard.write(128); 
+      }    
+      if(prevByte == 144 && currentByte==5){
+        Keyboard.write(132); 
+      }    
+   
+    Serial.println(currentByte,HEX);
+    if(prevprevByte == 176 && prevByte == 7 && initialxState==1){
+          initialxCord = currentByte;
+          xCord = currentByte;
+          initialxState = 0;
+    }
+    if(prevprevByte == 176 && prevByte == 7 && initialxState==0){  
+          xCord = currentByte;
+          xMove = xCord - initialxCord;
+    Mouse.move(xMove, 0, 0);
+    }   
+    
+    if(prevprevByte == 176 && prevByte == 10 && initialyState==1){
+          initialyCord = currentByte;
+          yCord = currentByte;
+          initialyState = 0;
+    }
+    if(prevprevByte == 176 && prevByte == 10 && initialyState==0){  
+          yCord = currentByte;
+          yMove = - yCord + initialyCord;
+    Mouse.move(0, yMove, 0);
+//    Serial.print("initialy:");
+//    Serial.println(initialyCord,HEX);
+//    Serial.print("yCord:");
+//    Serial.println(yCord,HEX);
+//    Serial.print("yMove+148:");
+//    Serial.println(yMove+148,HEX);
+    }    
+//    delay(responseDelay);
+    prevprevByte = prevByte;
+    prevByte = currentByte;
+//  }
+ }
+}
